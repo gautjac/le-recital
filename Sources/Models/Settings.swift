@@ -36,7 +36,6 @@ public final class Settings: ObservableObject {
         static let pace = "recital_pace"
         static let autoPace = "recital_autopace"
         static let preferLang = "recital_prefer_lang" // bias daily pick to UI lang
-        static let reduceMotion = "recital_reduce_motion"
     }
 
     @Published public var mode: Theme.Mode {

@@ -7,6 +7,7 @@ public struct TodayView: View {
     @EnvironmentObject private var loc: LocManager
     @EnvironmentObject private var settings: Settings
     @Environment(\.palette) private var pal
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @ObservedObject var library: Library
 
     @State private var revealed = LaunchFlags.revealAll ? Int.max : 1
@@ -60,7 +61,8 @@ public struct TodayView: View {
                         VerseView(poem: poem,
                                   revealedSpokenLines: fullyRevealed ? nil : revealed,
                                   fontSize: 22)
-                            .animation(settings.autoPace ? .easeIn(duration: 0.4) : .default,
+                            .animation(reduceMotion ? .none
+                                       : (settings.autoPace ? .easeIn(duration: 0.4) : .default),
                                        value: revealed)
 
                         if !fullyRevealed {
@@ -213,17 +215,19 @@ public struct TodayView: View {
 
     private func advance() {
         guard revealed < totalLines else { return }
-        withAnimation { revealed += 1 }
+        if reduceMotion { revealed += 1 }
+        else { withAnimation { revealed += 1 } }
     }
 
     private func setAuto(_ on: Bool) {
         settings.autoPace = on
         autoTimer?.invalidate(); autoTimer = nil
         guard on, !fullyRevealed else { return }
+        let reduce = reduceMotion
         autoTimer = Timer.scheduledTimer(withTimeInterval: settings.pace.seconds, repeats: true) { tmr in
             Task { @MainActor in
-                if revealed < totalLines { withAnimation { revealed += 1 } }
-                else { tmr.invalidate() }
+                guard revealed < totalLines else { tmr.invalidate(); return }
+                if reduce { revealed += 1 } else { withAnimation { revealed += 1 } }
             }
         }
     }

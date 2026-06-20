@@ -8,6 +8,7 @@ public struct MemorizeView: View {
     @EnvironmentObject private var loc: LocManager
     @EnvironmentObject private var settings: Settings
     @Environment(\.palette) private var pal
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @ObservedObject var library: Library
     let poem: Poem
 
@@ -37,10 +38,12 @@ public struct MemorizeView: View {
                                   peeked: peeked,
                                   fontSize: 21,
                                   onTapMasked: { idx in
-                                      withAnimation(.easeOut(duration: 0.2)) {
+                                      let toggle = {
                                           if peeked.contains(idx) { peeked.remove(idx) }
                                           else { peeked.insert(idx) }
                                       }
+                                      if reduceMotion { toggle() }
+                                      else { withAnimation(.easeOut(duration: 0.2)) { toggle() } }
                                   })
                     }
                     hint
