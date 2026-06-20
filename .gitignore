@@ -1,0 +1,14 @@
+# Xcode / xcodegen
+*.xcodeproj/xcuserdata/
+*.xcodeproj/project.xcworkspace/xcuserdata/
+xcuserdata/
+DerivedData/
+build/
+*.xcuserstate
+
+# macOS / Obsidian
+.DS_Store
+
+# The project is generated from project.yml by ./gen.sh — but we commit it so
+# the repo opens in Xcode without running xcodegen first.
+# *.xcodeproj

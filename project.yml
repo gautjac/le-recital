@@ -1,0 +1,89 @@
+name: LeRecital
+options:
+  bundleIdPrefix: app.atelier.lerecital
+  deploymentTarget:
+    iOS: "17.0"
+  createIntermediateGroups: true
+  generateEmptyDirectories: true
+  developmentLanguage: fr
+  # Bilingual: French (default / fallback) + English. The system permission
+  # prompt (microphone) stays localized via InfoPlist.strings in fr/en.lproj.
+  knownRegions:
+    - fr
+    - en
+    - Base
+
+settings:
+  base:
+    SWIFT_VERSION: "5.0"
+    MARKETING_VERSION: "1.0"
+    CURRENT_PROJECT_VERSION: "1"
+    # Jac's paid Apple Developer team — must live in the BASE settings so
+    # ./gen.sh keeps it on every target (per Atelier native convention).
+    DEVELOPMENT_TEAM: "9WZ66DZ69J"
+    CODE_SIGN_STYLE: Automatic
+    GENERATE_INFOPLIST_FILE: NO
+    SWIFT_EMIT_LOC_STRINGS: YES
+    ENABLE_USER_SCRIPT_SANDBOXING: YES
+
+targets:
+  LeRecital:
+    type: application
+    platform: iOS
+    deploymentTarget: "17.0"
+    sources:
+      - path: Sources
+      - path: Resources/Assets.xcassets
+      - path: iOS/Resources/Poems.json
+        buildPhase: resources
+      - path: iOS/fr.lproj
+      - path: iOS/en.lproj
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: app.atelier.lerecital
+        PRODUCT_NAME: Le Récital
+        # Pin the Swift module name to an ASCII identifier so `@testable import`
+        # is predictable (the display PRODUCT_NAME has a space + accent).
+        PRODUCT_MODULE_NAME: LeRecital
+        INFOPLIST_FILE: iOS/Info.plist
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
+        TARGETED_DEVICE_FAMILY: "1,2"
+        SUPPORTS_MACCATALYST: NO
+        ENABLE_PREVIEWS: YES
+
+  LeRecitalTests:
+    type: bundle.unit-test
+    platform: iOS
+    deploymentTarget: "17.0"
+    sources:
+      - path: Tests
+    dependencies:
+      - target: LeRecital
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: app.atelier.lerecital.tests
+        GENERATE_INFOPLIST_FILE: YES
+        # PRODUCT_NAME of the app is "Le Récital" (with a space + accent), so
+        # xcodegen's auto-derived TEST_HOST (which assumes the target name) is
+        # wrong. Point it at the real built product explicitly.
+        TEST_HOST: "$(BUILT_PRODUCTS_DIR)/Le Récital.app/Le Récital"
+        BUNDLE_LOADER: "$(TEST_HOST)"
+
+schemes:
+  LeRecital:
+    build:
+      targets:
+        LeRecital: all
+        LeRecitalTests: [test]
+    test:
+      targets:
+        - LeRecitalTests
+    run:
+      config: Debug
+    profile:
+      config: Release
+    analyze:
+      config: Debug
+    archive:
+      config: Release
